@@ -88,7 +88,7 @@ static void write_pix8(u8 *fb, uint bpix, enum video_format eformat,
 			*fb++ = cte->blue;
 			*fb++ = cte->green;
 			*fb++ = cte->red;
-			*fb++ = 0;
+			*fb++ = 0xff;
 		}
 	}
 }
@@ -423,7 +423,7 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 						*fb++ = *bmap++;
 						*fb++ = *bmap++;
 						*fb++ = *bmap++;
-						*fb++ = 0;
+						*fb++ = 0xff;
 					}
 				}
 				fb -= priv->line_length + width * (bpix / 8);
@@ -461,7 +461,8 @@ int video_bmp_display(struct udevice *dev, ulong bmp_image, int x, int y,
 						*fb++ = *bmap++;
 						*fb++ = *bmap++;
 						*fb++ = *bmap++;
-						*fb++ = *bmap++;
+						bmap++;
+						*fb++ = 0xff;
 					}
 				}
 				fb -= priv->line_length + width * (bpix / 8);
