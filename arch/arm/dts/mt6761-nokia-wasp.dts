@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2025, Umer Uddin <umer.uddin@mentallysanemainliners.org>
+ * Copyright (c) 2025, Ben Grisdale <bengris32@protonmail.ch>
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/iio/adc/mediatek,mt6370_adc.h>
+#include <dt-bindings/leds/common.h>
+#include <dt-bindings/pinctrl/mediatek,mt6765-pinfunc.h>
+
+#include "mt6761.dtsi"
+#include "mt6357.dtsi"
+
+/ {
+	model = "Nokia 2.2";
+	compatible = "nokia,wasp", "mediatek,mt6761";
+
+	aliases {
+        serial0 = &uart0; // so as you probably know wasp doesnt even have uart in general
+	};
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+        ranges;
+
+		tick-timer = &apxgpt;
+
+		stdout-path=&framebuffer0;
+
+        framebuffer0: framebuffer-video@7d870000 {
+            compatible = "simple-framebuffer";
+            reg = <0x0 0x7d870000 0x0 (736 * 1520 * 4)>;
+            width = <736>;
+            height = <1520>;
+            stride = <(736 * 4)>;
+            format = "a8r8g8b8";
+        };
+
+	};
+
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0 0x40000000 0 0x40000000>;
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&usb2 {
+	status = "okay";
+};
+
+&u2phy {
+	status = "okay";
+};
