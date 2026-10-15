@@ -9,6 +9,17 @@ config SYS_VENDOR
 choice
 	prompt "MediaTek board select"
 
+config TARGET_MT6761
+	bool "MediaTek MT6761 SoC"
+	select ARM64
+	select LINUX_KERNEL_IMAGE_HEADER
+	select LMB_LIMIT_DMA_BELOW_RAM_TOP
+	select MISC_INIT_R
+	select OF_SYSTEM_SETUP
+	help
+      The MediaTek MT6761 is an ARM64-based SoC with a quad-core Cortex-A53.
+      including UART, SPI, USB2.0 dual role, SD and MMC cards, PWM and I2C.
+
 config TARGET_MT7622
 	bool "MediaTek MT7622 SoC"
 	select ARM64
@@ -160,7 +171,7 @@ config MTK_MEM_MAP_DDR_SIZE
 	hex "DDR .size in mem_map"
 	default 0x200000000 if TARGET_MT7987 || TARGET_MT7988 || TARGET_MT8188 || TARGET_MT8195
 	default 0xc0000000 if TARGET_MT8365
-	default 0x80000000 if TARGET_MT7981 || TARGET_MT7986 || TARGET_MT8183
+	default 0x80000000 if TARGET_MT6761 || TARGET_MT7981 || TARGET_MT7986 || TARGET_MT8183
 	default 0x40000000 if TARGET_MT7622 || TARGET_MT8512
 	default 0x20000000
 	help
@@ -177,6 +188,7 @@ endif
 
 config SYS_BOARD
 	string "Board name"
+	default "mt6761" if TARGET_MT6761
 	default "mt7622" if TARGET_MT7622
 	default "mt7623" if TARGET_MT7623
 	default "mt7629" if TARGET_MT7629
@@ -195,6 +207,7 @@ config SYS_BOARD
 	  be used.
 
 config SYS_CONFIG_NAME
+	default "mt6761" if TARGET_MT6761
 	default "mt7623" if TARGET_MT7623
 	default "mt7629" if TARGET_MT7629
 	default "mt7981" if TARGET_MT7981
@@ -253,5 +266,8 @@ config MTK_TZ_MOVABLE
 	select ARCH_MISC_INIT
 	select OF_SYSTEM_SETUP
 	bool
+
+config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	default 0x80000 if TARGET_MT6761
 
 endif
