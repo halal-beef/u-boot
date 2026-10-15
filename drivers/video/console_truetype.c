@@ -402,14 +402,14 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
 				for (i = 0; i < width; i++) {
 					int val = *bits;
-					int out;
+					u32 out;
 
 					if (vid_priv->colour_bg)
 						val = 255 - val;
 					if (vid_priv->format == VIDEO_X2R10G10B10)
 						out = val << 2 | val << 12 | val << 22;
 					else
-						out = val | val << 8 | val << 16;
+						out = 0xff000000 | val | val << 8 | val << 16;
 					if (vid_priv->colour_fg)
 						*dst++ |= out;
 					else
@@ -1001,12 +1001,12 @@ static int truetype_set_cursor_visible(struct udevice *dev, bool visible,
 
 			if (IS_ENABLED(CONFIG_VIDEO_BPP32)) {
 				for (i = 0; i < width; i++) {
-					int out;
+					u32 out;
 
 					if (vid_priv->format == VIDEO_X2R10G10B10)
 						out = val << 2 | val << 12 | val << 22;
 					else
-						out = val | val << 8 | val << 16;
+						out = 0xff000000 | val | val << 8 | val << 16;
 					if (vid_priv->colour_fg)
 						*dst++ |= out;
 					else
