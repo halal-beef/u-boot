@@ -426,6 +426,14 @@ static u32 msdc_cmd_find_resp(struct msdc_host *host, struct mmc_cmd *cmd)
 		break;
 	case MMC_RSP_R1b:
 		resp = 0x7;
+		/*
+		 * Use the normal response path for a read-side CMD12, as in
+		 * Linux, to avoid R1b busy handshake when stopping an ongoing
+		 * read transfer.
+		 */
+		if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION &&
+		    !host->last_data_write)
+			resp = 0x1;
 		break;
 	case MMC_RSP_R2:
 		resp = 0x2;
@@ -564,7 +572,6 @@ static int msdc_start_command(struct msdc_host *host, struct mmc_cmd *cmd,
 {
 	u32 rawcmd;
 	u32 status;
-	u32 blocks = 0;
 	int ret;
 
 	if (!msdc_cmd_is_ready(host))
@@ -577,15 +584,18 @@ static int msdc_start_command(struct msdc_host *host, struct mmc_cmd *cmd,
 		msdc_fifo_clr(host);
 	}
 
+	/* CMD12 response selection needs the previous transfer direction. */
+	rawcmd = msdc_cmd_prepare_raw_cmd(host, cmd, data);
 	host->last_resp_type = cmd->resp_type;
+	if (cmd->resp_type == MMC_RSP_R1b &&
+	    FIELD_GET(SDC_CMD_RSPTYP, rawcmd) == 0x1)
+		host->last_resp_type = MMC_RSP_R1;
 	host->last_data_write = 0;
 
-	rawcmd = msdc_cmd_prepare_raw_cmd(host, cmd, data);
-
+	/* Only update the block count for data commands. */
 	if (data)
-		blocks = data->blocks;
+		writel(data->blocks, &host->base->sdc_blk_num);
 
-	writel(blocks, &host->base->sdc_blk_num);
 	writel(cmd->cmdarg, &host->base->sdc_arg);
 	writel(rawcmd, &host->base->sdc_cmd);
 
